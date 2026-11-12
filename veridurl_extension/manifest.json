@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "VeridURL",
+  "version": "2.0.0",
+  "description": "VeridURL - a realtime phishing detection browser based extension system",
+  "permissions": [
+    "tabs",
+    "storage",
+    "scripting",
+    "notifications",
+    "webNavigation"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/logo_16.png",
+      "48": "assets/logo_48.png",
+      "128": "assets/logo_128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/logo_16.png",
+    "48": "assets/logo_48.png",
+    "128": "assets/logo_128.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}

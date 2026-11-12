@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeridURL Guard</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <img src="assets/logo_48.png" alt="VeridURL Logo" class="logo-img" />
+        <div class="logo-text">
+          <h1>VeridURL</h1>
+          <span class="sub-logo">Realtime Threat Guard</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator-pulse"></span>
+        <span class="status-label">Active</span>
+      </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="app-nav">
+      <button class="nav-btn active" data-tab="tab-overview">Overview</button>
+      <button class="nav-btn" data-tab="tab-diagnostics">Diagnostics</button>
+      <button class="nav-btn" data-tab="tab-manual">Manual</button>
+      <button class="nav-btn" data-tab="tab-rules">Rules</button>
+      <button class="nav-btn" data-tab="tab-analytics">Analytics</button>
+      <button class="nav-btn" data-tab="tab-settings">Settings</button>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="app-content">
+      
+      <!-- 1. Overview Tab -->
+      <section id="tab-overview" class="tab-panel active">
+        <div class="score-card">
+          <div class="gauge-container">
+            <svg class="progress-ring" width="120" height="120">
+              <circle class="progress-ring__circle-bg" stroke="#f0f9ff" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+              <circle class="progress-ring__circle" stroke="#0ea5e9" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+            </svg>
+            <div class="score-value">
+              <span id="gauge-score">--</span>
+              <span class="score-label">Safety Score</span>
+            </div>
+          </div>
+          <div class="verdict-container">
+            <div id="verdict-badge" class="badge badge-unknown">Verifying...</div>
+            <div id="scan-time" class="scan-time">Just scanned</div>
+          </div>
+        </div>
+
+        <div class="domain-card">
+          <span class="card-label">Current Domain</span>
+          <h2 id="current-domain-name">Extracting hostname...</h2>
+          <div class="domain-actions">
+            <button id="btn-toggle-whitelist" class="action-btn outline">Trust Site</button>
+            <button id="btn-toggle-blacklist" class="action-btn danger-outline">Block Site</button>
+          </div>
+        </div>
+
+        <div class="features-summary-list">
+          <div class="summary-item">
+            <span class="summary-icon">🛡️</span>
+            <div class="summary-details">
+              <h4>Typosquatting Guard</h4>
+              <p id="typo-guard-status">Monitoring hostname structure</p>
+            </div>
+          </div>
+          <div class="summary-item">
+            <span class="summary-icon">🧠</span>
+            <div class="summary-details">
+              <h4>AI Analysis</h4>
+              <p id="ml-engine-status">XGBoost ML evaluation active</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Diagnostics Tab -->
+      <section id="tab-diagnostics" class="tab-panel">
+        <div id="diagnostics-not-available" class="placeholder-view" style="display: none;">
+          <span class="placeholder-icon">⚠️</span>
+          <h3>Diagnostics Unavailable</h3>
+          <p>Scan a standard website to inspect its security features.</p>
+        </div>
+
+        <div id="diagnostics-content">
+          <div class="section-title">Risk Diagnostic breakdown</div>
+          <div class="diagnostic-group">
+            <h3>Lexical Analysis</h3>
+            <div class="diag-item" id="diag-url-len">
+              <span>URL Length</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-domain-len">
+              <span>Domain Length</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-lookalike">
+              <span>Lookalike Risk</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+          </div>
+
+          <div class="diagnostic-group">
+            <h3>Structure & SSL</h3>
+            <div class="diag-item" id="diag-https">
+              <span>SSL Encryption (HTTPS)</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-social">
+              <span>Social Networks</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-submit">
+              <span>Form Submission Buttons</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+          </div>
+
+          <div class="diagnostic-group">
+            <h3>Page Composition Weights</h3>
+            <div class="diag-item" id="diag-js">
+              <span>JavaScript Count</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-css">
+              <span>Stylesheet Link Count</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+            <div class="diag-item" id="diag-iframe">
+              <span>Embedded IFrames</span>
+              <span class="diag-value">Calculating...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Manual Check Tab -->
+      <section id="tab-manual" class="tab-panel">
+        <div class="manual-check-card">
+          <h3>Custom URL Scan</h3>
+          <p class="description">Copy-paste any suspicious link below to evaluate it with the VeridURL engines on demand.</p>
+          
+          <div class="input-group">
+            <input type="text" id="manual-url-input" placeholder="https://suspicious-site.com/login" />
+            <button id="btn-manual-scan" class="action-btn fill">Scan Link</button>
+          </div>
+        </div>
+
+        <div id="manual-scan-loading" class="spinner-overlay" style="display: none;">
+          <div class="spinner"></div>
+          <p>Running deep threat extraction...</p>
+        </div>
+
+        <div id="manual-scan-result" class="manual-result-box" style="display: none;">
+          <div class="manual-result-header">
+            <h4>Scan Results</h4>
+            <span id="manual-badge" class="badge">--</span>
+          </div>
+          <div class="manual-result-body">
+            <div class="result-row">
+              <span class="row-label">Safety Score</span>
+              <strong id="manual-score">0%</strong>
+            </div>
+            <div class="result-row">
+              <span class="row-label">Threat Reason</span>
+              <span id="manual-reason" class="row-val">None</span>
+            </div>
+            <div class="result-row">
+              <span class="row-label">URL Length</span>
+              <span id="manual-len" class="row-val">0 chars</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Rules Tab -->
+      <section id="tab-rules" class="tab-panel">
+        <div class="rules-tabs">
+          <button class="rules-sub-tab active" data-subtab="whitelist-view">Trusted Domains</button>
+          <button class="rules-sub-tab" data-subtab="blacklist-view">Blocked Domains</button>
+        </div>
+
+        <div class="rules-input-row">
+          <input type="text" id="rule-domain-input" placeholder="domain.com" />
+          <button id="btn-add-rule" class="action-btn fill">Add Domain</button>
+        </div>
+
+        <!-- Whitelist -->
+        <div id="whitelist-view" class="subtab-panel active">
+          <ul id="whitelist-list" class="rules-list">
+            <!-- Dynamic elements -->
+          </ul>
+        </div>
+
+        <!-- Blacklist -->
+        <div id="blacklist-view" class="subtab-panel">
+          <ul id="blacklist-list" class="rules-list">
+            <!-- Dynamic elements -->
+          </ul>
+        </div>
+      </section>
+
+      <!-- 5. Analytics Tab -->
+      <section id="tab-analytics" class="tab-panel">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-num" id="stat-scanned">0</span>
+            <span class="stat-title">Sites Checked</span>
+          </div>
+          <div class="stat-box danger">
+            <span class="stat-num" id="stat-blocked">0</span>
+            <span class="stat-title">Threats Blocked</span>
+          </div>
+          <div class="stat-box success">
+            <span class="stat-num" id="stat-allowed">0</span>
+            <span class="stat-title">Safe Allowed</span>
+          </div>
+        </div>
+
+        <div class="analytics-actions">
+          <button id="btn-export-csv" class="action-btn outline w-full">📥 Export Scan History (CSV)</button>
+          <button id="btn-reset-stats" class="action-btn danger-outline w-full" style="margin-top: 10px;">🗑️ Reset History & Stats</button>
+        </div>
+
+        <div class="recent-scans-header">Recent Scans Logs</div>
+        <div class="scans-history-list" id="scans-history-list">
+          <!-- Dynamic history -->
+        </div>
+      </section>
+
+      <!-- 6. Settings Tab -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Real-Time Protection</h3>
+            <p>Automatically scans website redirects and document anchors as you navigate.</p>
+          </div>
+          <label class="switch-toggle">
+            <input type="checkbox" id="setting-auto-scan" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Active Warning Overlay</h3>
+            <p>Injects full-page warning blocker when visiting an identified phishing site.</p>
+          </div>
+          <label class="switch-toggle">
+            <input type="checkbox" id="setting-warning-overlay" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <h3>Prediction Scan Engine</h3>
+            <p>Select cloud-based ML nodes or local FastAPI node.</p>
+          </div>
+          <select id="setting-engine-select" class="form-select">
+            <option value="cloud">Cloud Inference Nodes (Default)</option>
+            <option value="local">Local Developer Node (FastAPI)</option>
+          </select>
+        </div>
+
+        <div class="developer-info">
+          <h4>Engine Endpoints</h4>
+          <div class="endpoint-item">
+            <span>Cloud:</span> <code>https://phishshield-11y5.onrender.com</code>
+          </div>
+          <div class="endpoint-item">
+            <span>Local:</span> <code>http://127.0.0.1:8000</code>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>VeridURL Guard v2.0.0 Pro</span>
+      <span>•</span>
+      <a href="https://github.com" target="_blank">Documentation</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
